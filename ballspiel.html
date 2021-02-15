@@ -1,13 +1,43 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+  <style>
+    body {
+        overflow: hidden;
+    }
+    .wrapper {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    #booboo {
+      flex-grow: 1;
+      max-width: 100%;
+    }
+  </style>
+</head>
+
 <body>
-  <p>
-    Das Ziel ist das blaue Raumschiff zu dem rechten Rand zu
-    führen, onhe einen roten Ball zu treffen. Du kannst das
-    Raumschiff mit den Pfeiltasten steuern. 
-  </p>  
-  <canvas id="booboo" width="500" height="300"></canvas>
+  <div class="wrapper">
+    <div class="nutzung">
+      <p>
+        Das Ziel ist das blaue Raumschiff zu dem rechten Rand zu
+        führen, onhe einen roten Ball zu treffen. Du kannst das
+        Raumschiff mit den Pfeiltasten steuern.
+      </p>
+    </div>
+    <div class="main-content">
+      <canvas id="booboo" width="500" height="300"></canvas>
+    </div>
+  </div>
   <script>
     function getRandomArbitrary(min, max) {
       return Math.random() * (max - min) + min;

@@ -45,6 +45,7 @@
     </div>
   </div>
   <script>
+    const wrapper = document.getElementById('wrapper');
     const canvas = document.getElementById('booboo');
     const ctx = canvas.getContext('2d');
     var mainContent = document.getElementById("main-content");
@@ -100,6 +101,14 @@
     }
 
     document.addEventListener('keydown', onKeyDown);
+
+    function toucheventer(event) {
+      //console.log(event);
+      wrapper.style.backgroundColor = 'yellow';
+    }
+
+    wrapper.addEventListener("touchstart", toucheventer, true);
+
 
     var nochLauft = true;
     var numBalle = 3;

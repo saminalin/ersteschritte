@@ -104,7 +104,26 @@
 
     function clickHandler(event) {
       console.log(event);
-      wrapper.style.backgroundColor = 'yellow';
+      var x = event.x;
+      var y = event.y;
+      var h = wrapper.offsetHeight;
+      var w = wrapper.offsetWidth;
+      if (x > w / 2.0 && y < h / 2.0) {
+        raumschiff.vx = 1;
+        raumschiff.vy = -1;
+      }
+      if (x <= w / 2.0 && y < h / 2.0) {
+        raumschiff.vx = -1;
+        raumschiff.vy = -1;
+      }
+      if (x > w / 2.0 && y >= h / 2.0) {
+        raumschiff.vx = 1;
+        raumschiff.vy = 1;
+      }
+      if (x <= w / 2.0 && y >= h / 2.0) {
+        raumschiff.vx = -1;
+        raumschiff.vy = 1;
+      }
     }
 
     wrapper.addEventListener("click", clickHandler, true);

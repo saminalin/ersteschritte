@@ -103,6 +103,7 @@
     document.addEventListener('keydown', onKeyDown);
 
     function clickHandler(event) {
+      event.stopPropagation();
       console.log(event);
       var x = event.x;
       var y = event.y;

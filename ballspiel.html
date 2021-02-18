@@ -102,12 +102,12 @@
 
     document.addEventListener('keydown', onKeyDown);
 
-    function toucheventer(event) {
-      //console.log(event);
+    function clickHandler(event) {
+      console.log(event);
       wrapper.style.backgroundColor = 'yellow';
     }
 
-    wrapper.addEventListener("touchstart", toucheventer, true);
+    wrapper.addEventListener("click", clickHandler, true);
 
 
     var nochLauft = true;

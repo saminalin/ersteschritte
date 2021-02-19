@@ -14,15 +14,29 @@
         ctx.strokeStyle = 'grey';
         ctx.strokeRect(0, 0, 500, 300);
 
-        var v = "Frohen Karnval";
+        var v = "";
 
         ctx.font = '50px serif';
         ctx.fillStyle = 'red';
-        ctx.fillText(v, 50, 90);
+    
+        var alt_event_key = '';
 
         function onKeyDown(event) {
-            ctx.fillText('Danke', 60, 120);
+            // Hier der Canvas geloscht werden soll.
+            ctx.clearRect(2, 2, 497, 297);
+            ctx.fillText(v + alt_event_key + event.key, 60, 120);
+            alt_event_key = alt_event_key + event.key;
         }
+
+        // Nach dem ersten Lauf:
+        // alt_event_key == 'x';
+        // Wahrend dem zweiten Lauf:
+        // ctx.fillText('Frohen Karnelval' + 'x' + 'y');
+        // alt_event_key = 'y' + 'x';
+        // Nach dem zweiten Lauf:
+        // alt_event_key = 'yx';
+        // 
+
 
         document.addEventListener('keydown', onKeyDown);
 

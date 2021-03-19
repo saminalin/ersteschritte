@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <canvas id="booboo" width="500" height="300"></canvas>
+    <script>
+        function getRandomArbitrary(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const canvas = document.getElementById('booboo');
+        const ctx = canvas.getContext('2d');
+
+        ctx.strokeStyle = 'grey';
+        ctx.strokeRect(0, 0, 500, 300);
+
+        var v = "Mietzekatze";
+        var i = 90;
+        function step() {
+            ctx.clearRect(2, 2, 497, 297);
+            ctx.fillText(v, 50, i);
+            i = i + 0.1;
+            if (i < 300) {
+                requestAnimationFrame(step);
+            }
+        }
+
+        requestAnimationFrame(step);
+
+
+
+
+        ctx.font = '50px serif';
+        ctx.fillStyle = 'red';
+        ctx.fillText(v, 50, i);
+
+        function onKeyDown(event) {
+            // Hier der Canvas geloscht werden soll.
+            ctx.clearRect(2, 2, 497, 297);
+            // Hier nehmen wir den ersten Buchstaben weg
+            if (event.key == v[0]) {
+                v = v.substring(1);
+            }
+            ctx.fillText(v, 50, i);
+        }
+        document.addEventListener('keydown', onKeyDown);
+
+    </script>
+</body>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <canvas id="booboo" width="500" height="300"></canvas>
+    <script>
+        function getRandomArbitrary(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const canvas = document.getElementById('booboo');
+        const ctx = canvas.getContext('2d');
+
+        ctx.strokeStyle = 'grey';
+        ctx.strokeRect(0, 0, 500, 300);
+
+        ctx.font = '50px serif';
+        ctx.fillStyle = 'green';
+
+        var i = 90;
+        var letzteAnderung = Date.now();
+        var aktuelleFarbe = 'green';
+        function step() {
+            ctx.clearRect(2, 2, 497, 297);
+            ctx.fillStyle = aktuelleFarbe;
+            ctx.fillText('Winterschlaf', 50, i);
+            i += 0.3;
+
+            // Wenn seit dem letzten Wechsel mindestens 0.3 sekunden
+            // vergangen sind, dann wechseln wir.
+            //
+            // Wenn die aktuelle Zeit grosser ist, als die letzte plus
+            // 0.3 sekunden, dann...
+            if (Date.now() > letzteAnderung + 300) {
+                if (aktuelleFarbe == "green") {
+                    aktuelleFarbe = "red";
+                } else {
+                    aktuelleFarbe = "green";
+                }
+                letzteAnderung = Date.now();
+                console.log(aktuelleFarbe);
+            }
+
+            if (i < 300) {
+                requestAnimationFrame(step);
+            }
+        }
+
+        requestAnimationFrame(step);
+
+
+
+    </script>
+</body>

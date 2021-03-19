@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <canvas id="booboo" width="500" height="300"></canvas>
+    <script>
+        function getRandomArbitrary(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const canvas = document.getElementById('booboo');
+        const ctx = canvas.getContext('2d');
+
+        ctx.strokeStyle = 'grey';
+        ctx.strokeRect(0, 0, 500, 300);
+
+        ctx.font = '50px serif';
+        ctx.fillStyle = 'red';
+
+        var i = 90;
+        function step() {
+            ctx.clearRect(2, 2, 497, 297);
+            ctx.fillText('Lockdown', 50, i);
+            ++i;
+            if (i < 300) {
+                requestAnimationFrame(step); 
+            } else {
+                requestAnimationFrame(step2); 
+               
+            }
+        }
+       
+
+        var k = 100;
+        function step2() {
+            ctx.clearRect(2, 2, 497, 297);
+            ctx.fillText('verlaengert', 50, k);
+            ++k;
+            if (k < 300) {
+            
+                requestAnimationFrame(step2);
+            }
+        }
+
+        requestAnimationFrame(step);
+
+
+
+    </script>
+</body>

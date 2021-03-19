@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <canvas id="booboo" width="500" height="300"></canvas>
+  <script>
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const canvas = document.getElementById('booboo');
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = 'grey';
+    ctx.strokeRect(0, 0, 500, 300);
+
+    var spielfeld = [];
+    for (var i = 0; i < 50; ++i) {
+      var spalte = [];
+      for (var j = 0; j < 30; ++j) {
+        spalte.push(false);
+      }
+      // spalte == [false, false, false, false, false, .. (30x)];
+      spielfeld.push(spalte);
+      // spielfeld == [
+      //   [false, false, false, ...] 
+      // ]
+      // spielfeld == [
+      //   [false, false, false, ...], 
+      //   [false, false, false, ...] 
+      // ]
+      // spielfeld == [
+      //   [false, false, false, ...], 
+      //   [false, false, false, ...] 
+      //   [false, false, false, ...] 
+      // ]
+    }
+    // spielfeld == [
+    //   [false, false, false, ...], 
+    //   [false, false, true, ...], 
+    //   [false, false, false, ...],
+    //   (50x) 
+    // ]
+    //
+    // spielfeld[1][2]
+
+    spielfeld[37][10] = true;
+    spielfeld[19][7] = true;
+    spielfeld[8][3] = true;
+    spielfeld[49][0] = true;
+
+    // ======================
+
+    for (var i = 0; i < 50; ++i) {
+
+      for (var j = 0; j < 30; ++j) {
+        if (spielfeld[i][j] == true) {
+          ctx.fillStyle = 'blue';
+          ctx.fillRect(i * 10 , j * 10, 10, 10);
+  
+
+        } 
+      }
+    }
+
+
+    
+
+  </script>
+</body>

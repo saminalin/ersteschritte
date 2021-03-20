@@ -43,6 +43,13 @@
 
     zeichnen();
 
+    function ist_das_quadrat_im_feld(i, j) {
+      if (i >= 0 && i < 50 && j >= 0 && j < 30) {
+       return true; 
+      }
+      return false;
+    }
+
     function grow_the_blue_things() {
       var vergroesserung = [];
       for (var i = 0; i < 50; ++i) {
@@ -50,30 +57,26 @@
           if (spielfeld[i][j] != true) {
             continue;
           }
-          
+
           // if (the_field_has_valid_coordinates(i, j -1)) { ... }
-          if (i >= 0 && i < 50 && j - 1 >= 0 && j - 1 < 30) {
-        
-            var paar = {i: i, j: j - 1};
+          if (ist_das_quadrat_im_feld(i, j-1)) {
+            var paar = { i: i, j: j - 1 };
             vergroesserung.push(paar);
           }
-          if (i - 1 >= 0 && i - 1 < 50 && j >= 0 && j < 30) {
-           
-            var paar = {i: i - 1, j: j};
+          if (ist_das_quadrat_im_feld(i-1,j)) {
+            var paar = { i: i - 1, j: j };
             vergroesserung.push(paar);
           }
-          if (i + 1 >= 0 && i + 1 < 50 && j >= 0 && j < 30) {
-          
-            var paar = {i: i + 1, j: j};
+          if (ist_das_quadrat_im_feld(i+1, j)) {
+            var paar = { i: i + 1, j: j };
             vergroesserung.push(paar);
           }
-          if (i >= 0 && i < 50 && j + 1 >= 0 && j + 1 < 30) {
-            
-            var paar = {i: i, j: j + 1};
+          if (ist_das_quadrat_im_feld(i, j+1)) {
+            var paar = { i: i, j: j + 1 };
             vergroesserung.push(paar);
           }
         }
-      } 
+      }
 
       // console.log(vergroesserung);
       // [{i: 23, j: 8}, {i:9, j:12}, ...]

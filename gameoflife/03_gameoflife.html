@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <canvas id="booboo" width="500" height="300"></canvas>
+  <script>
+    /** Utility functions, painting the frame. */
+
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const canvas = document.getElementById('booboo');
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = 'grey';
+    ctx.strokeRect(0, 0, 500, 300);
+
+    /** Draw the fine net. */
+
+    function vertikal(x, y1, y2) {
+      ctx.beginPath();
+      ctx.moveTo(x, y1);
+      ctx.lineTo(x, y2);
+      ctx.stroke();
+    }
+
+    function allevertikal(x, y1, y2, n, abstand) {
+      for (var i = 0; i < n; ++i) {
+        vertikal(x + i * abstand, y1, y2);  
+      }
+    }
+
+    function horizontal(y, x1, x2) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y);
+      ctx.lineTo(x2, y);
+      ctx.stroke(); 
+    }
+
+    function allehorizontal(y, x1, x2, n, abstand) {
+      for (var i = 0; i < n; ++i) {
+        horizontal(y+ i * abstand, x1, x2);  
+      }
+    }
+
+    // API
+    // function ganzesnetz(xol, yol, xur, yur, nx, ny)
+    // function ganzesnetz(x, y, distx, disty, nx, ny)
+    function ganzesnetz(x, y, abstx, absty, nx, ny) {
+      allehorizontal(y, x, x + nx * abstx, ny, absty);
+      allevertikal(x, y, y + ny * absty, nx, abstx);
+    }
+
+    /** Create the model, and work with it. */
+
+    var spielfeld = [];
+    for (var i = 0; i < 50; ++i) {
+      var spalte = [];
+      for (var j = 0; j < 30; ++j) {
+        spalte.push(false);
+      }
+      spielfeld.push(spalte);
+    }
+
+    spielfeld[37][10] = true;
+    spielfeld[19][7] = true;
+    spielfeld[8][3] = true;
+
+    // ======================
+
+    // Zeichnet das ganze Modell.
+    function zeichnen() {
+      for (var i = 0; i < 50; ++i) {
+        for (var j = 0; j < 30; ++j) {
+          if (spielfeld[i][j] == true) {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(i * 10, j * 10, 10, 10);
+          }
+        }
+      }
+    }
+
+    zeichnen();
+
+    function ist_das_quadrat_im_feld(i, j) {
+      if (i >= 0 && i < 50 && j >= 0 && j < 30) {
+        return true;
+      }
+      return false;
+    }
+
+    function grow_the_blue_things() {
+      var vergroesserung = [];
+      for (var i = 0; i < 50; ++i) {
+        for (var j = 0; j < 30; ++j) {
+          if (spielfeld[i][j] != true) {
+            continue;
+          }
+
+          // if (the_field_has_valid_coordinates(i, j -1)) { ... }
+          if (ist_das_quadrat_im_feld(i, j - 1)) {
+            var paar = { i: i, j: j - 1 };
+            vergroesserung.push(paar);
+          }
+          if (ist_das_quadrat_im_feld(i - 1, j)) {
+            var paar = { i: i - 1, j: j };
+            vergroesserung.push(paar);
+          }
+          if (ist_das_quadrat_im_feld(i + 1, j)) {
+            var paar = { i: i + 1, j: j };
+            vergroesserung.push(paar);
+          }
+          if (ist_das_quadrat_im_feld(i, j + 1)) {
+            var paar = { i: i, j: j + 1 };
+            vergroesserung.push(paar);
+          }
+        }
+      }
+
+      // console.log(vergroesserung);
+      // [{i: 23, j: 8}, {i:9, j:12}, ...]
+
+      for (var n = 0; n < vergroesserung.length; n++) {
+        // var koordinaten_zu_malen = vergroesserung[n];
+        // spielfeld[koordinaten_zu_malen.i][koordinaten_zu_malen.j] = true;
+        spielfeld[vergroesserung[n].i][vergroesserung[n].j] = true;
+        // spielfeld[...................][...................] = true;
+      }
+
+    }
+
+    function set_corners_to_blue() {
+      spielfeld[0][0] = true;
+      spielfeld[49][0] = true;
+      spielfeld[0][29] = true;
+      spielfeld[49][29] = true;
+    }
+
+    function onKeyDown(event) {
+      grow_the_blue_things();
+      set_corners_to_blue();
+      zeichnen();
+    }
+
+    function repaint() {
+      ctx.strokeStyle = '#ffbdf9';
+      ganzesnetz(0, 0, 10, 10, 50, 30);
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+
+    repaint();
+
+  </script>
+</body>

@@ -6,6 +6,9 @@
   <script>
     /** Utility functions, painting the frame. */
 
+    // Wir nutzen es eigentlich nicht, aber die auskommentiert
+    // Logik unten, das die zufällige Startzustand generieren
+    // kann, nutzt es, so wir behalten es hier.
     function getRandomArbitrary(min, max) {
       return Math.random() * (max - min) + min;
     }
@@ -17,7 +20,6 @@
     ctx.strokeRect(0, 0, 500, 300);
 
     /** Draw the fine net. */
-
     function vertikal(x, y1, y2) {
       ctx.beginPath();
       ctx.moveTo(x, y1);
@@ -25,9 +27,10 @@
       ctx.stroke();
     }
 
+    // mussen wir abstand nicht irgendwo definieren?
     function allevertikal(x, y1, y2, n, abstand) {
       for (var i = 0; i < n; ++i) {
-        vertikal(x + i * abstand, y1, y2);  
+        vertikal(x + i * abstand, y1, y2);
       }
     }
 
@@ -35,25 +38,24 @@
       ctx.beginPath();
       ctx.moveTo(x1, y);
       ctx.lineTo(x2, y);
-      ctx.stroke(); 
+      ctx.stroke();
     }
 
     function allehorizontal(y, x1, x2, n, abstand) {
       for (var i = 0; i < n; ++i) {
-        horizontal(y+ i * abstand, x1, x2);  
+        horizontal(y + i * abstand, x1, x2);
       }
     }
 
-    // API
-    // function ganzesnetz(xol, yol, xur, yur, nx, ny)
-    // function ganzesnetz(x, y, distx, disty, nx, ny)
+  //wird hier aber noch nicht gezeichnet oder?
     function ganzesnetz(x, y, abstx, absty, nx, ny) {
       allehorizontal(y, x, x + nx * abstx, ny, absty);
       allevertikal(x, y, y + ny * absty, nx, abstx);
     }
 
     /** Create the model, and work with it. */
-
+    var wir_sind_schon_drin = false;
+    
     var spielfeld = [];
     for (var i = 0; i < 50; ++i) {
       var spalte = [];
@@ -67,6 +69,11 @@
     spielfeld[19][7] = true;
     spielfeld[8][3] = true;
 
+    //for (var n = 0; n < 600;  ++n) {
+    //  var i = Math.floor(getRandomArbitrary(0, 49.99));
+    //  var j = Math.floor(getRandomArbitrary(0, 29.99));
+    //  spielfeld[i][j] = true;
+    //}
     // ======================
 
     // Zeichnet das ganze Modell.
@@ -97,7 +104,6 @@
           if (spielfeld[i][j] != true) {
             continue;
           }
-
           // if (the_field_has_valid_coordinates(i, j -1)) { ... }
           if (ist_das_quadrat_im_feld(i, j - 1)) {
             var paar = { i: i, j: j - 1 };
@@ -118,6 +124,7 @@
         }
       }
 
+
       // console.log(vergroesserung);
       // [{i: 23, j: 8}, {i:9, j:12}, ...]
 
@@ -130,6 +137,99 @@
 
     }
 
+    function gameofliferules() {
+      var veranderungen = [];
+      for (var i = 0; i < 50; ++i) {
+        for (var j = 0; j < 30; ++j) {
+          var instruktion;
+
+          instruktion = rule_overpopulation(i, j);
+          if (instruktion != null) {
+            veranderungen.push(instruktion);
+          }
+          instruktion = rule_underpopulation(i, j);
+          if (instruktion != null) {
+            veranderungen.push(instruktion);
+          }
+
+          instruktion = rule_reproduction(i, j);
+          if (instruktion != null) {
+            veranderungen.push(instruktion);
+          }
+        }
+      }
+
+      for (var n = 0; n < veranderungen.length; n++) {
+        // instruktion <- n-te element von die veranderungen array sein
+        instruktion = veranderungen[n];
+        var i = instruktion.i;
+        var j = instruktion.j;
+
+        var wert;
+        if (instruktion.operation == "toten") {
+          wert = false;
+        } else {
+          wert = true;
+        }
+
+        spielfeld[i][j] = wert;
+      }
+    }
+
+    // Any live cell with more than three live neighbours dies, as if by overpopulation.
+  
+    function rule_overpopulation(spalte, zeile) {
+      if (spielfeld[spalte][zeile] && number_of_neighbors(spalte, zeile) > 3) {
+        return { i: spalte, j: zeile, operation: "toten" };
+      }
+      return null;
+    }
+
+    // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+    function rule_underpopulation(spalte, zeile) {
+      if (spielfeld[spalte][zeile] && number_of_neighbors(spalte, zeile) < 2) {
+        return { i: spalte, j: zeile, operation: "toten" };
+      }
+      return null;
+    }
+
+    // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+    function rule_reproduction(spalte, zeile) {
+
+      if (!spielfeld[spalte][zeile] && number_of_neighbors(spalte, zeile) == 3) {
+        return { i: spalte, j: zeile, operation: "auferstehen" };
+      }
+      return null;
+    }
+
+
+   
+
+    function number_of_neighbors(spalte, zeile) {
+      var anzahl_der_nachbarn = 0;
+
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte - 1, zeile);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte - 1, zeile - 1);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte, zeile - 1);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte + 1, zeile - 1);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte + 1, zeile);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte + 1, zeile + 1);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte, zeile + 1);
+      anzahl_der_nachbarn += ist_die_nachbarzelle_blau(spalte - 1, zeile + 1);
+
+      return anzahl_der_nachbarn;
+    }
+
+    function ist_die_nachbarzelle_blau(spalte, zeile) {
+      if (ist_das_quadrat_im_feld(spalte, zeile)) {
+        if (spielfeld[spalte][zeile] == true) {
+          return 1;
+          console.log("Kalte, winterliche Wetter.");
+        }
+      }
+      return 0;
+    }
+
     function reverse_all_the_fields() {
       for (var i = 0; i < 50; ++i) {
         for (var j = 0; j < 30; ++j) {
@@ -139,18 +239,95 @@
     }
 
     function onKeyDown(event) {
-      //grow_the_blue_things();
-      reverse_all_the_fields();
-      zeichnen();
+      console.log(event);
+      if (event.key == "s") {
+        wenn_drin_dann_raus_oder_das_gegenteil();
+      } else {
+        makestep();
+      }
+    }
+
+    function wenn_drin_dann_raus_oder_das_gegenteil() {
+      if (wir_sind_schon_drin) {
+        raus();
+      } else {
+        rein();
+      }
+    }
+
+    function rein() {
+      wir_sind_schon_drin = true;
+      runAsLoop();
+    }
+
+    function raus() {
+      wir_sind_schon_drin = false;
+    }
+
+
+    // https://docs.google.com/presentation/d/1tqt6LM5-PyhWLofTAgd2ioQ18nUtMLLo-C2gFsDVOrg/edit#slide=id.p
+
+    function makestep() {
+      gameofliferules();
+      repaint();
+    }
+
+    function runAsLoop() {
+      makestep();
+      if (wir_sind_schon_drin) {
+        setTimeout(runAsLoop, 300);
+      }
     }
 
     function repaint() {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, 500, 300);
+      ctx.strokeStyle = 'grey';
+      ctx.strokeRect(0, 0, 500, 300);
       ctx.strokeStyle = '#ffbdf9';
       ganzesnetz(0, 0, 10, 10, 50, 30);
+      zeichnen();
+      if (highlighted != null) {
+        ctx.fillStyle = '#f7ee3477';
+        var i = highlighted.i;
+        var j = highlighted.j;
+        ctx.fillRect(i * 10, j * 10, 10, 10);
+      }      
     }
+
+    var highlighted = null;
+
+    function mousemove(event) {
+      var spalte = Math.floor(event.offsetX / 10);
+      var zeile = Math.floor(event.offsetY / 10);
+      if (spalte < 0 || spalte > 49 || zeile < 0 || zeile > 29) {
+        highlighted = null;
+      } else {
+        highlighted = {i: spalte, j: zeile};
+      }
+      repaint();
+    }
+
+    function clickblue(event) {
+      console.log(event);
+      var spalte = Math.floor(event.offsetX / 10);
+      var zeile = Math.floor(event.offsetY / 10);
+      spielfeld[spalte][zeile] = !spielfeld[spalte][zeile];
+      repaint();
+    }
+    // spielfeld[event.offsetX / 10][event.offsetY / 10] = true;
+    // spielfeld [spalte] [zeile] = true 
+
+
+
+    document.addEventListener("click", clickblue);
+    document.addEventListener("mousemove", mousemove);
 
     document.addEventListener('keydown', onKeyDown);
 
+    ////////////// BEGINN
+
+    //makestep();
     repaint();
 
   </script>

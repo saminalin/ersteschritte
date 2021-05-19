@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <canvas id="booboo" width="500" height="300"></canvas>
+  <img id="baumelement" src="Baum.png">
+  <img id="source"
+    src="https://mdn.mozillademos.org/files/5397/rhino.jpg"
+    width="300" height="227">
+  
+  <script>
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const canvas = document.getElementById('booboo');
+    const ctx = canvas.getContext('2d');
+    const bild = document.getElementById('baumelement');
+    const image = document.getElementById('source');
+
+    ctx.strokeStyle = 'grey';
+    ctx.strokeRect(0, 0, 500, 300);
+
+    // Baum:
+    // {
+    //   x: number,
+    //   y: number,, 79, 
+    // }
+
+    var baume = [
+      {x: 100, y: 100},
+      {x: 600, y: 150},
+      {x: 300, y: 200},
+      {x: 80, y: 370},
+      {x: 450, y: 420},
+      {x: 130, y: 500},
+      {x: 550, y: 550},
+      {x: 200, y: 650},
+      {x: 330, y: 700},
+    ];
+
+    
+    ctx.drawImage(bild, 79, 45);
+    ctx.drawImage(image, 33, 71, 104, 124, 21, 20, 87, 104);
+
+
+
+   </script>
+</body>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <canvas id="booboo" width="800" height="800"></canvas>
+  <script>
+    const canvas = document.getElementById('booboo');
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = 'grey';
+    ctx.strokeRect(0, 0, 800, 800);
+
+    var N = 50;  // Anzahl der Spalte un Zeile.
+    var horizWande = [];
+    var vertWande = [];
+    var zellGrosse = 10;
+    var abstand = 150;
+    var fx = 0;
+    var fy = N;
+
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function innereWand() {
+        var gibtEsWand = false;
+        if (getRandomArbitrary(0, 100) < 30) {
+            gibtEsWand = true;
+        }
+        return esGibtWand;
+    }
+
+    function neueWande(N, horiz) {
+        var wande = [];
+        for (var spalte = 0; spalte <= N; ++spalte) {
+            var neueLinie = [];
+            for (var zeile = 0; zeile <= N; ++zeile) {
+                if ((!horiz && (spalte == 0 || spalte == N)) || (horiz && (zeile == 0 || zeile == N))) {
+                    neueLinie.push(true);
+                    continue;
+                }
+                neueLinie.push(innereWand());
+            }
+            wande.push(neueLinie);
+        }
+        return wande;
+    }
+
+
+    var horizWande = neueWande(N, true);
+    var vertWande = neueWande(N, false);
+
+    horizWande[0][N] = false;
+    horizWande[N-1][0] = false;
+
+
+    function repaintHorizWande() {
+        for (var spalte = 0; spalte < N; ++spalte) {
+            for (var zeile = 0; zeile <= N; ++zeile) {
+                if (!horizWande[spalte][zeile])  {
+                    continue;
+                }
+                var x = spalte * zellGrosse + abstand;
+                var y = zeile * zellGrosse + abstand;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + zellGrosse, y);
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 3;
+                ctx.strokeW
+                ctx.stroke();
+            }
+        }
+    }
+
+    function repaintVertWande() {
+        for (var spalte = 0; spalte <= N; ++spalte) {
+            for (var zeile = 0; zeile < N; ++zeile) {
+                if (!vertWande[spalte][zeile])  {
+                    continue;
+                }
+                var x = spalte * zellGrosse + abstand;
+                var y = zeile * zellGrosse + abstand;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y + zellGrosse);
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+    }
+
+    function repaintFigur() {
+        ctx.beginPath();
+        ctx.strokeStyle = 'orange';
+        ctx.lineWidth = 2;
+        ctx.arc((fx + 0.5) * zellGrosse + abstand, (fy + 0.5) * zellGrosse + abstand, zellGrosse / 2, 0, 7);
+        ctx.stroke();
+    }
+
+    function repaint() {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(2, 2, 798, 798);
+
+        repaintHorizWande();
+        repaintVertWande();
+        repaintFigur();
+    }
+
+    repaint();
+
+    function onKeydown(event) {
+        if (event.code == "ArrowUp") {
+            if (horizWande[fx][fy]) {
+                return;
+            }
+            fy--;            
+            repaint();
+            return;
+        }
+        if (event.code == "ArrowDown") {
+            if (horizWande[fx][fy+1]) {
+                return;
+            }
+            fy++;
+            repaint();
+            return;
+        }
+        if (event.code == "ArrowLeft") {
+            if (vertWande[fx][fy]) {
+                return;
+            }
+            fx--;
+            repaint();
+            return;
+        }
+        if (event.code == "ArrowRight") {
+            if (vertWande[fx+1][fy]) {
+                return;
+            }
+            fx++;
+            repaint();
+            return;
+        }
+    }
+
+    document.addEventListener('keydown', onKeydown);
+
+   </script>
+</body>

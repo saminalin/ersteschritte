@@ -2,12 +2,13 @@
 <html>
 
 <body>
-  <canvas id="booboo" width="500" height="300"></canvas>
-  <img id="baumelement" src="Baum.png">
-  <img id="source"
-    src="https://mdn.mozillademos.org/files/5397/rhino.jpg"
-    width="300" height="227">
-  
+  <canvas id="booboo" width="800" height="800"></canvas>
+
+  <img style="visibility:hidden" id="baumelement" src="Baum-90.png">
+  <img style="visibility:hidden" id="skierlinks" src="skier-starker-110-links.png">
+  <img style="visibility:hidden" id="skierrechts" src="skier-starker-110-rechts.png">
+  <img style="visibility:hidden" id="skiergerade" src="skier-starker-110-gerade.png">
+
   <script>
     function getRandomArbitrary(min, max) {
       return Math.random() * (max - min) + min;
@@ -16,10 +17,36 @@
     const canvas = document.getElementById('booboo');
     const ctx = canvas.getContext('2d');
     const bild = document.getElementById('baumelement');
-    const image = document.getElementById('source');
+    const skierlinks = document.getElementById('skierlinks');
+    const skierrechts = document.getElementById('skierrechts');
+    const skiergerade = document.getElementById('skiergerade');
+
+    const baumHohe = 90;
+
+    let baum_kollision_engung_x;
+    let baum_kollision_engung_y;
+    let baum_kollision_noch_tiefer;
+    let baum_kollision_nach_rechts;
+    let baum_kollision_breite;
+    let baum_kollision_hohe;
+
+    let skif_kollision_engung_x;
+    let skif_kollision_engung_y;
+    let skif_kollision_tl_x_korr;
+    let skif_kr_tl_y;
+    let skif_kollision_breite;
+    let skif_kr_br_y;
+
+    let sfx = 400;
+    let sfbewegung = 0;  // -1: links, 0: gerade, 1: rechts
+    let sfgeschw = 3;  // px per step
+    let yworld = 0;
+    let pausiert = false;
+    let mousePosition;
+
 
     ctx.strokeStyle = 'grey';
-    ctx.strokeRect(0, 0, 500, 300);
+    ctx.strokeRect(0, 0, 800, 800);
 
     // Baum:
     // {
@@ -28,22 +55,214 @@
     // }
 
     var baume = [
-      {x: 100, y: 100},
-      {x: 600, y: 150},
-      {x: 300, y: 200},
-      {x: 80, y: 370},
-      {x: 450, y: 420},
-      {x: 130, y: 500},
-      {x: 550, y: 550},
-      {x: 200, y: 650},
-      {x: 330, y: 700},
+      { x: 100, y: 100 },
+      { x: 600, y: 150 },
+      { x: 300, y: 200 },
+      { x: 80, y: 370 },
+      { x: 450, y: 420 },
+      { x: 130, y: 500 },
+      { x: 550, y: 550 },
+      { x: 200, y: 650 },
+      { x: 330, y: 700 },
+      { x: 10, y: 750 },
+      { x: 200, y: 750 },
+      { x: 500, y: 820 },
     ];
 
-    
-    ctx.drawImage(bild, 79, 45);
-    ctx.drawImage(image, 33, 71, 104, 124, 21, 20, 87, 104);
+    const waldHohe = baume[baume.length - 1].y - baume[0].y + baumHohe + baumHohe / 10;
 
+    function run() {
+      baum_kollision_engung_x = bild.offsetWidth / 2.8;
+      baum_kollision_engung_y = bild.offsetHeight / 3;
+      baum_kollision_noch_tiefer = bild.offsetHeight / 3;
+      baum_kollision_nach_rechts = bild.offsetWidth / 50;
+      baum_kollision_breite = bild.offsetWidth - 2 * baum_kollision_engung_x;
+      baum_kollision_hohe = bild.offsetHeight - 2 * baum_kollision_engung_y;
 
+      skif_kollision_engung_x = skierlinks.offsetWidth / 2.8;
+      skif_kollision_engung_y = skierlinks.offsetHeight / 3;
+      skif_kollision_tl_x_korr = -1 * (skierlinks.clientWidth / 2) + skif_kollision_engung_x;
+      skif_kr_tl_y = 50 + skif_kollision_engung_y;
+      skif_kollision_breite = skierlinks.offsetWidth - 2 * skif_kollision_engung_x;
+      skif_kr_br_y = skif_kr_tl_y + skierlinks.offsetHeight - 2 * skif_kollision_engung_y;
 
-   </script>
+      step();
+    }
+
+    function rechtEckenUberlappen(a_tl_x, a_tl_y, a_br_x, a_br_y, b_tl_x, b_tl_y, b_br_x, b_br_y) {
+      if (a_tl_x > b_br_x) {
+        return false;
+      }
+      if (b_tl_x > a_br_x) {
+        return false;
+      }
+      if (a_tl_y > b_br_y) {
+        return false;
+      }
+      if (b_tl_y > a_br_y) {
+        return false;
+      }
+      return true;
+    }
+
+    function kollidesWith(i, logIt) {
+      const baum_kr_tl_x = baume[i].x + baum_kollision_nach_rechts + baum_kollision_engung_x;
+      const baum_kr_tl_y = baume[i].y + yworld + baum_kollision_engung_y + baum_kollision_noch_tiefer;
+      const baum_kr_br_x = baum_kr_tl_x + baum_kollision_breite;
+      const baum_kr_br_y = baum_kr_tl_y + baum_kollision_hohe;
+
+      const skif_kr_tl_x = sfx + skif_kollision_tl_x_korr;
+      const skif_kr_br_x = skif_kr_tl_x + skif_kollision_breite;
+
+      const result = rechtEckenUberlappen(baum_kr_tl_x, baum_kr_tl_y, baum_kr_br_x, baum_kr_br_y,
+        skif_kr_tl_x, skif_kr_tl_y, skif_kr_br_x, skif_kr_br_y);
+
+      if (logIt) {
+        console.log("INPUT", baum_kr_tl_x, baum_kr_tl_y, baum_kr_br_x, baum_kr_br_y,
+          skif_kr_tl_x, skif_kr_tl_y, skif_kr_br_x, skif_kr_br_y);
+        console.log("OUTPUT", result);
+      }
+
+      return result;
+    }
+
+    // Returns true when there is a collision.
+    function kollisionPassiert(logIt) {
+      for (var i = 0; i < baume.length; ++i) {
+        if (kollidesWith(i, logIt)) {
+          console.log("collision found: ", i);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function step() {
+      bewegSkiFahrer();
+      yworld -= 1;  // yworld = yworld - 1;
+      neuPositionierungBaume();
+      var kollision = kollisionPassiert(false);
+      repaint();
+      if (pausiert) {
+        return;
+      }
+      if (!kollision) {
+        requestAnimationFrame(step);
+      } else {
+        // TODO: etwas das zeigt Game over.
+      }
+    }
+
+    function repaint() {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, 800, 800);
+      ctx.strokeStyle = 'grey';
+      ctx.strokeRect(0, 0, 800, 800);
+      zeichneSkiFahrer();
+      zeichneBaume();
+    }
+
+    function bewegSkiFahrer() {
+      sfx += sfbewegung * sfgeschw;
+    }
+
+    function neuPositionierungBaume() {
+      for (var i = 0; i < baume.length; ++i) {
+        if (baume[i].y + yworld + baumHohe < 0) {
+          baume[i].y += waldHohe;
+        }
+      }
+    }
+
+    function zeichneSkiFahrer() {
+      let sfbild;
+      switch (sfbewegung) {
+        case 0:
+          sfbild = skiergerade;
+          break;
+        case -1:
+          sfbild = skierlinks;
+          break;
+        case 1:
+          sfbild = skierrechts;
+          break;
+      }
+      ctx.drawImage(sfbild, sfx - (sfbild.clientWidth / 2), 50);
+
+      ctx.strokeStyle = "pink";
+      ctx.lineWidth = 3;
+
+      const engung_x = sfbild.offsetWidth / 2.8;
+      const engung_y = sfbild.offsetHeight / 3;
+
+      ctx.strokeRect(sfx - (sfbild.clientWidth / 2) + engung_x, 50 + engung_y,
+        sfbild.offsetWidth - 2 * engung_x, sfbild.offsetHeight - 2 * engung_y);
+    }
+
+    function zeichneBaume() {
+      ctx.strokeStyle = "pink";
+      ctx.lineWidth = 3;
+
+      const engung_x = bild.offsetWidth / 2.5;
+      const engung_y = bild.offsetHeight / 2.5;
+      const noch_tiefer = bild.offsetHeight / 3;
+      const nach_rechts = bild.offsetWidth / 50;
+
+      for (var i = 0; i < baume.length; ++i) {
+        ctx.drawImage(bild, baume[i].x, baume[i].y + yworld);
+        ctx.strokeRect(baume[i].x + nach_rechts + engung_x, baume[i].y + yworld + engung_y + noch_tiefer,
+          bild.offsetWidth - 2 * engung_x, bild.offsetHeight - 2 * engung_y);
+      }
+    }
+
+    function pauseGedruckt() {
+      if (pausiert) {
+        pausiert = false;
+        step();
+        return;
+      }
+      pausiert = true;
+    }
+
+    function onKeydown(e) {
+      console.log(e);
+      switch (e.code) {
+        case 'ArrowLeft':
+          sfbewegung = -1;
+          break;
+        case 'ArrowRight':
+          sfbewegung = 1;
+          break;
+        case 'KeyP':
+          pauseGedruckt();
+          break;
+        case 'KeyL':
+          kollisionPassiert(true);
+          break;
+        case 'KeyM':
+          console.log(mousePosition);
+          break;
+      }
+    }
+
+    function onKeyup(e) {
+      switch (e.code) {
+        case 'ArrowLeft':
+          sfbewegung = 0;
+          break;
+        case 'ArrowRight':
+          sfbewegung = 0;
+          break;
+      }
+    }
+
+    function onMouseMove(e) {
+      mousePosition = {x: e.offsetX, y: e.offsetY};
+    }
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('keyup', onKeyup);
+    window.addEventListener('keydown', onKeydown);
+    window.addEventListener('load', run);
+  </script>
 </body>

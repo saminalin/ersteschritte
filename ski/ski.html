@@ -111,8 +111,15 @@
       const baum_kr_br_x = baum_kr_tl_x + baum_kollision_breite;
       const baum_kr_br_y = baum_kr_tl_y + baum_kollision_hohe;
 
-      const skif_kr_tl_x = sfx + skif_kollision_tl_x_korr;
-      const skif_kr_br_x = skif_kr_tl_x + skif_kollision_breite;
+      let komp = 0;
+      if (sfbewegung == 1) {
+        komp = -20;
+      } else if (sfbewegung == -1) {
+        komp = 20;
+      }
+
+      const skif_kr_tl_x = sfx + skif_kollision_tl_x_korr + komp;
+      const skif_kr_br_x = skif_kr_tl_x + skif_kollision_breite + komp;
 
       const result = rechtEckenUberlappen(baum_kr_tl_x, baum_kr_tl_y, baum_kr_br_x, baum_kr_br_y,
         skif_kr_tl_x, skif_kr_tl_y, skif_kr_br_x, skif_kr_br_y);
@@ -139,7 +146,7 @@
 
     function step() {
       bewegSkiFahrer();
-      yworld -= 1;  // yworld = yworld - 1;
+      yworld -= 2;  // yworld = yworld - 1;
       neuPositionierungBaume();
       var kollision = kollisionPassiert(false);
       repaint();
@@ -176,15 +183,19 @@
 
     function zeichneSkiFahrer() {
       let sfbild;
+      // let kollision_horiz_komp;
       switch (sfbewegung) {
         case 0:
           sfbild = skiergerade;
+          // kollision_horiz_komp = 0;
           break;
         case -1:
           sfbild = skierlinks;
+          // kollision_horiz_komp = 20;          
           break;
         case 1:
           sfbild = skierrechts;
+          // kollision_horiz_komp = -20;          
           break;
       }
       ctx.drawImage(sfbild, sfx - (sfbild.clientWidth / 2), 50);
@@ -192,26 +203,26 @@
       ctx.strokeStyle = "pink";
       ctx.lineWidth = 3;
 
-      const engung_x = sfbild.offsetWidth / 2.8;
-      const engung_y = sfbild.offsetHeight / 3;
+      // const engung_x = sfbild.offsetWidth / 2.8;
+      // const engung_y = sfbild.offsetHeight / 3;
 
-      ctx.strokeRect(sfx - (sfbild.clientWidth / 2) + engung_x, 50 + engung_y,
-        sfbild.offsetWidth - 2 * engung_x, sfbild.offsetHeight - 2 * engung_y);
+      // ctx.strokeRect(sfx - (sfbild.clientWidth / 2) + engung_x + kollision_horiz_komp, 50 + engung_y,
+      //   sfbild.offsetWidth - 2 * engung_x, sfbild.offsetHeight - 2 * engung_y);
     }
 
     function zeichneBaume() {
       ctx.strokeStyle = "pink";
       ctx.lineWidth = 3;
 
-      const engung_x = bild.offsetWidth / 2.5;
-      const engung_y = bild.offsetHeight / 2.5;
-      const noch_tiefer = bild.offsetHeight / 3;
-      const nach_rechts = bild.offsetWidth / 50;
+      // const engung_x = bild.offsetWidth / 2.5;
+      // const engung_y = bild.offsetHeight / 2.5;
+      // const noch_tiefer = bild.offsetHeight / 3;
+      // const nach_rechts = bild.offsetWidth / 50;
 
       for (var i = 0; i < baume.length; ++i) {
         ctx.drawImage(bild, baume[i].x, baume[i].y + yworld);
-        ctx.strokeRect(baume[i].x + nach_rechts + engung_x, baume[i].y + yworld + engung_y + noch_tiefer,
-          bild.offsetWidth - 2 * engung_x, bild.offsetHeight - 2 * engung_y);
+        // ctx.strokeRect(baume[i].x + nach_rechts + engung_x, baume[i].y + yworld + engung_y + noch_tiefer,
+        //   bild.offsetWidth - 2 * engung_x, bild.offsetHeight - 2 * engung_y);
       }
     }
 
